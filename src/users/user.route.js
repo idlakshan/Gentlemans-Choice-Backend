@@ -1,6 +1,7 @@
 const express = require('express');
 const User = require('./user.model');
 const generateToken = require('../middleware/generateToken');
+const verifyToken = require('../middleware/verifyToken');
 const router = express.Router();
 
 //Register endpoint
@@ -39,8 +40,8 @@ router.post('/login', async (req, res) => {
 
     res.cookie('token', token, {
       httpOnly: true,
-      secure: true,
-      sameSite: "none"
+      secure: false,
+      sameSite: 'None'
     })
 
     return res.status(200).send({
@@ -60,6 +61,13 @@ router.post('/login', async (req, res) => {
     res.status(500).send({ message: 'Internal Server Error' });
   }
 });
+
+
+//all users
+router.get('/users', verifyToken, async (req, res) => {
+  res.send({ message: "Protected" });
+});
+
 
 
 
