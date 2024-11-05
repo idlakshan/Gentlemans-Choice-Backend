@@ -36,7 +36,7 @@ router.post('/login', async (req, res) => {
     }
 
     const token = await generateToken(user._id);
-   // console.log(token);
+    // console.log(token);
 
     res.cookie('token', token, {
       httpOnly: true,
@@ -45,7 +45,7 @@ router.post('/login', async (req, res) => {
     })
 
     return res.status(200).send({
-      message: 'Logged in successfully!',token, user: {
+      message: 'Logged in successfully!', token, user: {
         _id: user._id,
         email: user.email,
         username: user.username,
@@ -63,10 +63,43 @@ router.post('/login', async (req, res) => {
 });
 
 
-//all users
-router.get('/users', verifyToken, async (req, res) => {
-  res.send({ message: "Protected" });
+//get all users
+router.get('/users', async (req, res) => {
+  try {
+    const users = await User.find({}, 'id email role').sort({ createdAt: -1 });
+    res.status(200).send(users);
+
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    res.status(500).send({ message: 'Error fetching users' });
+  }
 });
+
+
+//log out endpoint
+router.post('/logout', (req, res) => {
+  res.clearCookie('token');
+  res.status(200).send({ message: "Logged out successfully" })
+});
+
+//delete a user
+router.delete('/users/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    console.log(id);
+
+    const user = await User.findByIdAndDelete(id);
+
+    if (!user) {
+      res.status(404).send({ message: "User not found" });
+    }
+    res.status(200).send({ message: "User deleted successfully" });
+  } catch (error) {
+    console.error('Error deleting user :', error);
+    res.status(500).send({ message: 'Error deleting user' });
+  }
+});
+
 
 
 
