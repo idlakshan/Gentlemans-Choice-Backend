@@ -15,6 +15,11 @@ app.use(cors({
     credentials: true
 }));
 
+//all routes
+const authRoutes=require('./src/users/user.route');
+
+app.use('/api/auth',authRoutes);
+
 // Connect to MongoDB
 async function main() {
     try {
