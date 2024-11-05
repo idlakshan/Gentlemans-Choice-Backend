@@ -1,5 +1,6 @@
 const express = require('express');
 const User = require('./user.model');
+const generateToken = require('../middleware/generateToken');
 const router = express.Router();
 
 //Register endpoint
@@ -33,7 +34,26 @@ router.post('/login', async (req, res) => {
       return res.status(401).send({ message: 'Password does not match' });
     }
 
-    return res.status(200).send({ message: 'Logged in successfully!', user });
+    const token = await generateToken(user._id);
+   // console.log(token);
+
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none"
+    })
+
+    return res.status(200).send({
+      message: 'Logged in successfully!',token, user: {
+        _id: user._id,
+        email: user.email,
+        username: user.username,
+        role: user.role,
+        profileImage: user.profileImage,
+        bio: user.bio,
+        profession: user.profession
+      }
+    });
 
   } catch (error) {
     console.error('Error during login:', error);
