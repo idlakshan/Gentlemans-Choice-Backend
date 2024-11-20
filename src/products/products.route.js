@@ -39,4 +39,42 @@ router.post("/create-product", async (req, res) => {
     }
 });
 
+//get all products
+router.get("/", async (req,res)=>{
+    try {
+        const  {category,color,minPrice,maxPrice,page=1,limit=10} =req.query;
+
+        let filter = {};
+
+        if(category && category !== "all"){
+            filter.category=category;
+        }
+
+        if(color && color !== "all"){
+            filter.color=color;
+        }
+
+        if(minPrice && maxPrice){
+            const min=parseFloat(minPrice);
+            const max=parseFloat(maxPrice);
+
+            if(!isNaN(min) && !isNaN(max)){
+                filter.prce ={$gte:min,$lte:max};
+            }
+        }
+
+        const skip =(parseInt(page)-1)*parseInt(limit);
+
+        const totalProducts= await Products.countDocuments(filter)
+        const totalPages=Math.ceil(totalProducts/parseInt(limit))
+        const products=await Products.find(filter).skip(skip).limit(parseInt(limit)).populate("author","email").sort({createdAt:-1})
+
+        res.status(200).send({products,totalPages,totalProducts})
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({ message: 'Server error', error: error.message });
+    }
+})
+
 module.exports = router;
