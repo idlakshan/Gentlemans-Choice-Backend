@@ -59,7 +59,7 @@ router.get("/", async (req,res)=>{
             const max=parseFloat(maxPrice);
 
             if(!isNaN(min) && !isNaN(max)){
-                filter.prce ={$gte:min,$lte:max};
+                filter.price ={$gte:min,$lte:max};
             }
         }
 
@@ -70,6 +70,29 @@ router.get("/", async (req,res)=>{
         const products=await Products.find(filter).skip(skip).limit(parseInt(limit)).populate("author","email").sort({createdAt:-1})
 
         res.status(200).send({products,totalPages,totalProducts})
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({ message: 'Server error', error: error.message });
+    }
+});
+
+//get single product
+router.get("/:id",async (req,res)=>{
+    try {
+        const productId=req.params.id;
+        console.log(productId);
+        
+        const product=await Products.findById(productId).populate("author","email username");
+        
+
+        if(!product){
+            return res.status(404).send({message:"Product not found"})
+        }
+
+        const reviews=await Reviews.find({productId}).populate("userId","username email");
+        res.status(200).send({product,reviews})
+
 
     } catch (error) {
         console.error(error);
