@@ -3,6 +3,7 @@ const Products = require('./products.model');
 const  {CreateProductValidator, UpdateProductValidator} = require('../validators/productValidator');
 const { z } = require('zod');
 const Reviews = require('../reviews/reviews.model');
+const verifyToken =require("../middleware/verifyToken")
 
 const router = express.Router();
 
@@ -101,8 +102,8 @@ router.get("/:id",async (req,res)=>{
     }
 });
 
-
-router.patch("/update-product/:id", async (req, res) => {
+//update a  product
+router.patch("/update-product/:id", verifyToken,  async (req, res) => {
     try {
         const productId = req.params.id;
 
@@ -136,6 +137,30 @@ router.patch("/update-product/:id", async (req, res) => {
         });
     }
 });
+
+//delete a product
+router.delete("/:id",async(req,res)=>{
+    try {
+        const productId=req.params.id;
+        const deletedProduct=await Products.findByIdAndDelete(productId);
+        if(!deletedProduct){
+            return res.status(404).send({ message: "Product not found" });
+        }
+
+        await Reviews.deleteMany({productId:productId});
+
+        return res.status(200).send({
+            message: "Product deleted successfully",
+        });
+
+    } catch (error) {
+        console.error('Error deleting product:', error);
+        res.status(500).send({
+            message: 'Server error',
+            error: error.message,
+        });
+    }
+})
 
 
 module.exports = router;
