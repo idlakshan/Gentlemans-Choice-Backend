@@ -1,14 +1,15 @@
 const express = require('express');
 const Products = require('./products.model');
-const ProductValidator = require('../validators/productValidator');
+const  {CreateProductValidator, UpdateProductValidator} = require('../validators/productValidator');
 const { z } = require('zod');
 const Reviews = require('../reviews/reviews.model');
+
 const router = express.Router();
 
 // Create a product
 router.post("/create-product", async (req, res) => {
     try {
-        const result = ProductValidator.safeParse(req.body);
+        const result = CreateProductValidator.safeParse(req.body);
 
         if (!result.success) {
             return res.status(400).json({ errors: result.error.errors });
@@ -98,6 +99,43 @@ router.get("/:id",async (req,res)=>{
         console.error(error);
         res.status(500).send({ message: 'Server error', error: error.message });
     }
-})
+});
+
+
+router.patch("/update-product/:id", async (req, res) => {
+    try {
+        const productId = req.params.id;
+
+        const result = UpdateProductValidator.safeParse(req.body);
+        if (!result.success) {
+            return res.status(400).send({ errors: result.error.errors });
+        }
+
+        const validatedData = result.data;
+
+        const updatedProduct = await Products.findByIdAndUpdate(
+            productId,
+            { ...validatedData },
+            { new: true }
+        );
+
+        if (!updatedProduct) {
+            return res.status(404).send({ message: "Product not found" });
+        }
+
+        
+        return res.status(200).send({
+            message: "Product updated successfully",
+            product: updatedProduct,
+        });
+    } catch (error) {
+        console.error('Error updating product:', error);
+        res.status(500).send({
+            message: 'Server error',
+            error: error.message,
+        });
+    }
+});
+
 
 module.exports = router;
