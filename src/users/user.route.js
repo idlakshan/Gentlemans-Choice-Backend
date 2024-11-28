@@ -2,6 +2,7 @@ const express = require('express');
 const User = require('./user.model');
 const generateToken = require('../middleware/generateToken');
 const verifyToken = require('../middleware/verifyToken');
+const verifyAdmin = require('../middleware/verifyAdmin');
 const router = express.Router();
 
 //Register endpoint
@@ -64,7 +65,7 @@ router.post('/login', async (req, res) => {
 
 
 //get all users
-router.get('/users', async (req, res) => {
+router.get('/users',verifyToken,verifyAdmin, async (req, res) => {
   try {
     const users = await User.find({}, 'id email role').sort({ createdAt: -1 });
     res.status(200).send(users);
