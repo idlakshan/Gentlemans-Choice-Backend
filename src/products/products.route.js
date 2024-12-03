@@ -84,7 +84,7 @@ router.get("/", async (req,res)=>{
 router.get("/:id",async (req,res)=>{
     try {
         const productId=req.params.id;
-        console.log(productId);
+        //console.log(productId);
         
         const product=await Products.findById(productId).populate("author","email username");
         
