@@ -103,7 +103,7 @@ router.delete('/users/:id', async (req, res) => {
 
 
 //update user roles
-router.put('/users/:id', async (req, res) => {
+router.put('/users/:id', verifyToken, verifyAdmin, async (req, res) => {
   try {
     const { id } = req.params;
     const { role } = req.body;

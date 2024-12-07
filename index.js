@@ -18,11 +18,13 @@ app.use(cors({
 //all routes
 const authRoutes=require('./src/users/user.route');
 const productsRoute=require('./src/products/products.route');
-const reviewsRoute=require('./src/reviews/reviews.route')
+const reviewsRoute=require('./src/reviews/reviews.route');
+const orderRoute=require('./src/orders/orders.route')
 
 app.use('/api/auth',authRoutes);
 app.use('/api/products', productsRoute); 
 app.use('/api/reviews', reviewsRoute); 
+app.use('/api/orders', orderRoute); 
 
 // Connect to MongoDB
 async function main() {

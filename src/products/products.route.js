@@ -9,7 +9,7 @@ const verifyAdmin = require('../middleware/verifyAdmin');
 const router = express.Router();
 
 // Create a product
-router.post("/create-product", async (req, res) => {
+router.post("/create-product",verifyToken,verifyAdmin, async (req, res) => {
     try {
         const result = CreateProductValidator.safeParse(req.body);
 
@@ -140,7 +140,7 @@ router.patch("/update-product/:id", verifyToken, verifyAdmin,  async (req, res) 
 });
 
 //delete a product
-router.delete("/:id",async(req,res)=>{
+router.delete("/:id", verifyToken, verifyAdmin, async(req,res)=>{
     try {
         const productId=req.params.id;
         const deletedProduct=await Products.findByIdAndDelete(productId);
