@@ -1,17 +1,14 @@
-const Stripe = require("stripe");
-const Order = require("./orders.model");
 const express = require("express");
-
+const Order = require("./orders.model");
 const router = express.Router();
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
-const stripe = new Stripe(process.env.STRIPE_SECTRET_KEY);
-
-// Create checkout session
+// create checkout session
 router.post("/create-checkout-session", async (req, res) => {
-  const { products } = req.body;
-  console.log(products);
+  const { products,address } = req.body;
 
   try {
+
     const lineItems = products.map((product) => ({
       price_data: {
         currency: "LKR",
@@ -28,27 +25,37 @@ router.post("/create-checkout-session", async (req, res) => {
       payment_method_types: ["card"],
       line_items: lineItems,
       mode: "payment",
-      success_url: `http://localhost:5173/success`,
-      cancel_url: `http://localhost:5173/cancel`,
+      success_url:"http://localhost:5173/success?session_id={CHECKOUT_SESSION_ID}",
+      cancel_url: "http://localhost:5173/cancel",
+      metadata: {
+        address: JSON.stringify(address),
+      },
     });
 
     res.json({ id: session.id });
+
   } catch (error) {
-    console.log("Error creating checkout session", error);
-    res.status(500).send({ message: "Failed to create checkout session" });
+    console.error("Error creating checkout session:", error);
+    res.status(500).json({ error: "Failed to create checkout session" });
   }
 });
 
-// Confirm payment
+//  confirm payment
 router.post("/confirm-payment", async (req, res) => {
+  console.log("confrim payment");
   const { session_id } = req.body;
+  // console.log(session_id);
 
   try {
     const session = await stripe.checkout.sessions.retrieve(session_id, {
       expand: ["line_items", "payment_intent"],
     });
 
-    const paymentIntentId = session.payment_intent_id;
+    console.log(session);
+    
+    const paymentIntentId = session.payment_intent.id;
+console.log("line items: ",session.line_items.data);
+
     let order = await Order.findOne({ orderId: paymentIntentId });
 
     if (!order) {
@@ -58,23 +65,30 @@ router.post("/confirm-payment", async (req, res) => {
       }));
 
       const amount = session.amount_total / 100;
+      const address = JSON.parse(session.metadata.address);
+
       order = new Order({
         orderId: paymentIntentId,
-        amount,
         products: lineItems,
-        email: session.customer_details.email,
+        amount: amount,
+        address,
         status: session.payment_intent.status === "succeeded" ? "pending" : "failed",
       });
     } else {
-      order.status = session.payment_intent.status === "succeeded" ? "pending" : "failed";
+      order.status =
+        session.payment_intent.status === "succeeded" ? "pending" : "failed";
     }
 
     await order.save();
+    //   console.log(order);
+
     res.json({ order });
   } catch (error) {
-    console.log("Error confirming payment", error);
-    res.status(500).send({ message: "Failed to confirm payment" });
+    console.error("Error confirming payment:", error);
+    res.status(500).json({ error: "Failed to confirm payment" });
   }
 });
+
+
 
 module.exports = router;
