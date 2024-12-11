@@ -1,6 +1,7 @@
 const express=require("express");
 const User = require("../users/user.model");
 const Order = require("../orders/orders.model");
+const Reviews = require("../reviews/reviews.model");
 const router=express.Router();
 
 router.get('/user-stats/:email',async(req,res)=>{
@@ -26,7 +27,20 @@ router.get('/user-stats/:email',async(req,res)=>{
        ])
 
        const totalPaymentAmount =totalPyamentsResults.length>0?totalPyamentsResults[0].totalAmount:0;
-       console.log(totalPaymentAmount);
+       //console.log(totalPaymentAmount);
+
+       const totalReviews=await Reviews.countDocuments({userId:user._id});
+
+       const purchasedProductIds=await Order.distinct("products.productId",{email:email});
+       const totalPurchasedProducts=purchasedProductIds.length;
+
+       res.status(200).send({
+        totalPayment:totalPaymentAmount.toFixed(2),
+        totalReviews,
+        totalPurchasedProducts
+       })
+
+
        
        
         
