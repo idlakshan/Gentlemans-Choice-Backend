@@ -11,6 +11,7 @@ const orderSchema = new Schema({
 
     ],
     amount: Number,
+    email:{type:String,required:true},
     address:{type:Object,required:true},
     status: {
         type: String,

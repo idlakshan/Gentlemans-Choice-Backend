@@ -53,7 +53,7 @@ router.post("/confirm-payment", async (req, res) => {
       expand: ["line_items", "payment_intent"],
     });
 
-    console.log(session);
+    //console.log(session);
     
     const paymentIntentId = session.payment_intent.id;
     //console.log("line items: ",session.line_items.data);
@@ -73,6 +73,7 @@ router.post("/confirm-payment", async (req, res) => {
         orderId: paymentIntentId,
         products: lineItems,
         amount: amount,
+        email: session.customer_details.email,
         address,
         status: session.payment_intent.status === "succeeded" ? "pending" : "failed",
       });
