@@ -103,7 +103,7 @@ router.get("/:email", async (req, res) => {
   }
 
   try {
-    const orders = await Order.find({ "address.email": email });
+    const orders = await Order.find({ email: email });
 
     if (orders.length === 0 || !orders) {
       return res.status(404).send({ orders: 0, message: "No orders found for this email" });
