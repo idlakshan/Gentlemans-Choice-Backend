@@ -9,7 +9,7 @@ const CreateProductValidator = z.object({
   image: z.string().optional(),
   color: z.string().optional(),
   rating: z.number().min(0, "Rating must be between 0 and 5").max(5, "Rating must be between 0 and 5").optional(),
-  author: z.string().length(24, "Author ID must be 24 characters long"),
+  author: z.string().optional(),
 });
 
 

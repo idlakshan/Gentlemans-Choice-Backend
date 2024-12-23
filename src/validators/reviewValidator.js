@@ -20,7 +20,7 @@ const CreateReviewValidator = z.object({
 
 
 
-// Exporting the validators
+
 module.exports = {
   CreateReviewValidator,
 };

@@ -9,9 +9,12 @@ const verifyAdmin = require('../middleware/verifyAdmin');
 const router = express.Router();
 
 // Create a product
-router.post("/create-product",verifyToken,verifyAdmin, async (req, res) => {
+router.post("/create-product", async (req, res) => {
+    console.log("Awaa");
     try {
         const result = CreateProductValidator.safeParse(req.body);
+        console.log(result);
+        
 
         if (!result.success) {
             return res.status(400).json({ errors: result.error.errors });
