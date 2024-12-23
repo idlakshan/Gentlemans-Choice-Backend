@@ -4,8 +4,9 @@ const JWT_SECRET = process.env.JWT_SECRET_KEY;
 
 const verifyToken = (req, res, next) => {
     try {
+       
         const token = req.cookies.token;
-       // console.log(token);
+        console.log("Tokem",token);
     
         if (!token) {
             return res.status(401).send({ message: "Token not found. Unauthorized access." });
@@ -15,6 +16,8 @@ const verifyToken = (req, res, next) => {
 
         req.userId = decoded.userId;
         req.role = decoded.role;
+        console.log(decoded.role);
+        
         next();
     } catch (error) {
         console.error("Error while verifying token:", error.message);

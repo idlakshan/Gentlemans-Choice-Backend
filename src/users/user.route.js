@@ -37,13 +37,9 @@ router.post('/login', async (req, res) => {
     }
 
     const token = await generateToken(user._id);
-    // console.log(token);
+   //  console.log(token);
 
-    res.cookie('token', token, {
-      httpOnly: true,
-      secure: false,
-      sameSite: 'None'
-    })
+    res.cookie('token', token)
 
     return res.status(200).send({
       message: 'Logged in successfully!', token, user: {

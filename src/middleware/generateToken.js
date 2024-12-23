@@ -16,6 +16,7 @@ const generateToken = async (userId) => {
             JWT_SECRET_KEY,
             { expiresIn: "1h" }
         );
+        console.log(token);
         
         return token;
     } catch (error) {
