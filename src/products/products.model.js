@@ -35,6 +35,7 @@ const ProductSchema=new Schema({
         ref:"User",
         required:true
     },
-})
+},
+{ timestamps: true })
 const Products = model("Products",ProductSchema);
 module.exports=Products;
